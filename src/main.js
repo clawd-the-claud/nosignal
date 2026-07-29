@@ -54,9 +54,9 @@ const post = new Post(renderer);
 const S = {
   mode: 'title',
   t: 0,
-  pos: new THREE.Vector3(0, 0, 101),
+  pos: new THREE.Vector3(0, 0, 95),
   vel: new THREE.Vector3(),
-  yaw: Math.PI, pitch: -0.05,
+  yaw: 0, pitch: -0.05,
   bob: 0, stepPhase: 0,
   torch: false,
   battery: 1,
@@ -89,7 +89,7 @@ addEventListener('keyup', e => { keys[e.code] = false; });
 
 canvas.addEventListener('mousedown', e => {
   if (S.mode !== 'playing') return;
-  if (document.pointerLockElement !== canvas) { canvas.requestPointerLock(); return; }
+  if (document.pointerLockElement !== canvas) { try { canvas.requestPointerLock(); } catch {} return; }
   if (e.button === 0) input.film = true;
   if (e.button === 2) toggleTorch();
 });
@@ -152,10 +152,10 @@ async function start() {
   await sound.init();
 
   S.mode = 'playing';
-  S.pos.set(0, 0, 101);
+  S.pos.set(0, 0, 95);
   S.vel.set(0, 0, 0);
-  S.yaw = Math.PI; S.pitch = -0.04;
-  S.torch = false; S.battery = 1; S.stamina = 1;
+  S.yaw = 0; S.pitch = -0.06;
+  S.torch = true; S.battery = 1; S.stamina = 1;
   S.recording = false; S.filmProgress = 0; S.filmTarget = null;
   S.filmed.clear();
   S.fear = 0; S.wrong = 0; S.hurt = 0; S.glitch = 0;
@@ -171,7 +171,7 @@ async function start() {
   $('dead').classList.add('hide');
   $('win').classList.add('hide');
   HUD.hud.classList.add('on');
-  canvas.requestPointerLock();
+  try { canvas.requestPointerLock(); } catch {}
 
   setTimeout(() => director.play('intro', 3, true), 900);
 }

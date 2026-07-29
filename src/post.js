@@ -83,13 +83,14 @@ export class Post {
         uGlitch:{ value: 0 },     // tape dropout
         uFade:  { value: 1 },     // to/from black
         uHurt:  { value: 0 },
+        uExposure: { value: 1.25 },
         uRes:   { value: new THREE.Vector2() },
       },
       vertexShader: VERT,
       fragmentShader: /* glsl */`
         precision highp float;
         uniform sampler2D uScene, uBloom;
-        uniform float uTime, uFear, uRec, uGlitch, uFade, uHurt;
+        uniform float uTime, uFear, uRec, uGlitch, uFade, uHurt, uExposure;
         uniform vec2 uRes;
         varying vec2 vUv;
         ${NOISE}
@@ -103,8 +104,8 @@ export class Post {
           // ---- tape dropout: whole scanlines slip sideways --------------
           float band = floor(uv.y * 90.0);
           float slip = (hash12(vec2(band, floor(uTime*13.0))) - 0.5);
-          float active = step(0.86 - uGlitch*0.55, hash12(vec2(band*0.37, floor(uTime*7.0))));
-          uv.x += slip * active * uGlitch * 0.055;
+          float slipOn = step(0.86 - uGlitch*0.55, hash12(vec2(band*0.37, floor(uTime*7.0))));
+          uv.x += slip * slipOn * uGlitch * 0.055;
 
           // ---- lens ------------------------------------------------------
           uv += c * r2 * -0.055;
@@ -119,7 +120,10 @@ export class Post {
           col += texture2D(uBloom, uv).rgb * 0.55;
 
           // ---- grade -----------------------------------------------------
-          col *= 1.05;
+          // ACES has a steep toe. A night scene sits right in it, so without
+          // real exposure the whole island tone-maps down to near-black and
+          // the game just looks broken.
+          col *= uExposure;
           col = acesFilm(col);
 
           // crush toward cold; horror lives in the shadows, not the midtones
@@ -130,7 +134,7 @@ export class Post {
 
           // ---- vignette, tight ------------------------------------------
           float vig = smoothstep(1.05, 0.16, length(c)*1.5);
-          col *= mix(1.0, vig, 0.80 + uFear*0.14);
+          col *= mix(1.0, vig, 0.66 + uFear*0.16);
 
           // ---- grain, always on -----------------------------------------
           float g = hash12(gl_FragCoord.xy + fract(uTime)*vec2(431.7, 719.3));

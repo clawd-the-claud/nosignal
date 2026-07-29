@@ -40,6 +40,7 @@ float fbm3(vec3 p){ float a=0.5,s=0.0; for(int i=0;i<4;i++){ s+=a*vnoise3(p); p*
    LIGHTING — declares its own uniforms. Include once per material.
    ------------------------------------------------------------------------- */
 export const LIGHT = /* glsl */`
+uniform float uTime;
 uniform vec3  uTorchPos;
 uniform vec3  uTorchDir;
 uniform float uTorchOn;       // 0..1, also carries the flicker
@@ -76,7 +77,7 @@ vec3 islandLight(vec3 albedo, vec3 N, vec3 P, float gloss){
   float lam = max(dot(N, L), 0.0);
   vec3 torch = vec3(1.00, 0.94, 0.82) * spot * att * uTorchOn;
 
-  col += albedo * torch * (lam * 5.40 + 0.45);
+  col += albedo * torch * (lam * 4.10 + 0.38);
 
   // tight specular so wet rock and glass catch the beam
   vec3 V = normalize(cameraPosition - P);
@@ -121,7 +122,7 @@ void main(){
 
   // heavy cloud deck, slowly churning
   float cl = fbm2(rd.xz / max(abs(h)+0.16, 0.16) * 1.1 + vec2(uTime*0.006, uTime*0.003));
-  col += vec3(0.030,0.034,0.046) * smoothstep(0.35,0.85,cl) * smoothstep(0.0,0.35,h);
+  col += vec3(0.018,0.021,0.029) * smoothstep(0.35,0.85,cl) * smoothstep(0.0,0.35,h);
 
   // a bruise of moonlight behind the overcast
   float md = max(dot(rd, uMoonDir), 0.0);
@@ -129,8 +130,8 @@ void main(){
   col += vec3(0.05,0.06,0.09) * pow(md, 5.0) * 0.30;
 
   // a few stars punch through, fewer as things go wrong
-  float st = step(0.9975, hash13(floor(rd*260.0)));
-  col += vec3(0.55,0.60,0.72) * st * smoothstep(0.1,0.5,h) * (1.0 - uWrong);
+  float st = step(0.99915, hash13(floor(rd*300.0)));
+  col += vec3(0.34,0.38,0.46) * st * smoothstep(0.15,0.6,h) * (1.0 - uWrong);
 
   col = mix(col, vec3(0.075,0.014,0.022), uWrong*0.55);
   gl_FragColor = vec4(col, 1.0);
@@ -161,7 +162,7 @@ export function lightUniforms(THREE) {
     uTorchRange: { value: 40 },
     uTorchCos:   { value: Math.cos(0.50) },
     uMoonDir:    { value: new THREE.Vector3(0.30, 0.34, -0.89).normalize() },
-    uAmbient:    { value: new THREE.Color(0.026, 0.032, 0.048) },
+    uAmbient:    { value: new THREE.Color(0.020, 0.025, 0.038) },
     uFogCol:     { value: new THREE.Color(0.030, 0.036, 0.050) },
     uFogDen:     { value: 0.026 },
     uWrong:      { value: 0 },
