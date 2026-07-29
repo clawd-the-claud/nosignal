@@ -204,6 +204,9 @@
     el.textContent = 'NO SIGNAL failed to start\n\n' + ((e.error && e.error.stack) || e.message);
   });
 </script>
-<script type="module" src="./src/main.js"></script>
+<!-- ?v= is a cache buster. GitHub Pages serves modules with a long
+     max-age, so without it an edited src/ file keeps running its old
+     version for anyone who has already visited. Bump it when you change src/. -->
+<script type="module" src="./src/main.js?v=3"></script>
 </body>
 </html>

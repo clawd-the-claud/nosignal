@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { NOISE, LIGHT } from './shaders.js';
+import { NOISE, LIGHT } from './shaders.js?v=3';
 
 // ============================================================================
 //  THE WATCHER

@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { lightUniforms } from './shaders.js';
-import { Island, createSky, scatterProps, buildStructures, landmarks, createMarkers } from './world.js';
-import { Watcher } from './entity.js';
-import { Sound } from './audio.js';
-import { Director } from './story.js';
-import { Post } from './post.js';
+import { lightUniforms } from './shaders.js?v=3';
+import { Island, createSky, scatterProps, buildStructures, landmarks, createMarkers } from './world.js?v=3';
+import { Watcher } from './entity.js?v=3';
+import { Sound } from './audio.js?v=3';
+import { Director } from './story.js?v=3';
+import { Post } from './post.js?v=3';
 
 // ============================================================================
 //  NO SIGNAL — main

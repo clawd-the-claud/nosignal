@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { NOISE, LIGHT, SKY_FRAG } from './shaders.js';
+import { NOISE, LIGHT, SKY_FRAG } from './shaders.js?v=3';
 
 // ============================================================================
 //  THE ISLAND
