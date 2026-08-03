@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { lightUniforms } from './shaders.js?v=4';
-import { Island, createSky, scatterProps, buildStructures, landmarks, createMarkers } from './world.js?v=4';
-import { Watcher } from './entity.js?v=4';
-import { Sound } from './audio.js?v=4';
-import { Director } from './story.js?v=4';
-import { Post } from './post.js?v=4';
+import { lightUniforms } from './shaders.js?v=5';
+import { Island, createSky, scatterProps, buildStructures, landmarks, createMarkers } from './world.js?v=5';
+import { Watcher } from './entity.js?v=5';
+import { Sound } from './audio.js?v=5';
+import { Director } from './story.js?v=5';
+import { Post } from './post.js?v=5';
 
 // ============================================================================
 //  NO SIGNAL — main
@@ -163,7 +163,10 @@ function setPrompt(html) {
 
 /* ----------------------------------------------------------- run flow */
 async function start() {
-  await sound.init();
+  // Audio must never gate the game. Creating or resuming an AudioContext can
+  // reject under autoplay policy, and an unhandled rejection here would leave
+  // the player on the title screen with a button that appears dead.
+  sound.init().catch(e => console.warn('[nosignal] audio unavailable:', e));
 
   S.mode = 'playing';
   S.pos.set(0, 0, 95);
