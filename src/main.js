@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { lightUniforms } from './shaders.js?v=3';
-import { Island, createSky, scatterProps, buildStructures, landmarks, createMarkers } from './world.js?v=3';
-import { Watcher } from './entity.js?v=3';
-import { Sound } from './audio.js?v=3';
-import { Director } from './story.js?v=3';
-import { Post } from './post.js?v=3';
+import { lightUniforms } from './shaders.js?v=4';
+import { Island, createSky, scatterProps, buildStructures, landmarks, createMarkers } from './world.js?v=4';
+import { Watcher } from './entity.js?v=4';
+import { Sound } from './audio.js?v=4';
+import { Director } from './story.js?v=4';
+import { Post } from './post.js?v=4';
 
 // ============================================================================
 //  NO SIGNAL — main
@@ -73,6 +73,7 @@ const S = {
   ambientTimer: 26,
   whisperTimer: 20,
   sightingDone: false,
+  deadHint: 0,
 };
 
 const keys = {};
@@ -81,8 +82,14 @@ const input = { fwd: 0, str: 0, sprint: false, film: false };
 /* --------------------------------------------------------------- input */
 addEventListener('keydown', e => {
   keys[e.code] = true;
-  if (e.code === 'KeyF') toggleTorch();
-  if (e.code === 'KeyM') sound.setMuted(sound.enabled);
+
+  // Held keys auto-repeat at ~30/sec. Movement wants that; a toggle does not —
+  // without this guard, holding F for even a moment flips the torch dozens of
+  // times and lands on a coin-flip, so the key feels dead.
+  if (!e.repeat) {
+    if (e.code === 'KeyF') toggleTorch();
+    if (e.code === 'KeyM') sound.setMuted(sound.enabled);
+  }
   if (['KeyW','KeyA','KeyS','KeyD','Space','ShiftLeft'].includes(e.code)) e.preventDefault();
 });
 addEventListener('keyup', e => { keys[e.code] = false; });
@@ -109,7 +116,13 @@ document.addEventListener('pointerlockchange', () => {
 
 function toggleTorch() {
   if (S.mode !== 'playing') return;
-  if (S.battery <= 0) return;
+  if (S.battery <= 0) {
+    // A dead phone that silently ignores the key is indistinguishable from a
+    // broken key. Say so.
+    S.deadHint = 2.5;
+    sound.beep(false);
+    return;
+  }
   S.torch = !S.torch;
   sound.beep(S.torch);
 }
@@ -126,6 +139,7 @@ const HUD = {
   hud: $('hud'), vf: $('vf'), tc: $('tc'), batt: $('batt'), battf: $('battf'),
   stam: $('stam'), stamf: $('stamf'), shots: $('shots'), ret: $('ret'),
   cap: $('cap'), capfg: $('capfg'), prompt: $('prompt'), subs: $('subs'),
+  phoneState: $('phoneState'),
   who: document.querySelector('#subs .who'), line: document.querySelector('#subs .line'),
   fear: $('fear'),
 };
@@ -160,7 +174,7 @@ async function start() {
   S.filmed.clear();
   S.fear = 0; S.wrong = 0; S.hurt = 0; S.glitch = 0;
   S.dead = false; S.startedAt = performance.now();
-  S.ambientTimer = 26; S.whisperTimer = 20; S.sightingDone = false;
+  S.ambientTimer = 26; S.whisperTimer = 20; S.sightingDone = false; S.deadHint = 0;
 
   director.clear();
   director.fired.clear();
@@ -319,9 +333,13 @@ function frame(rawDt) {
     }
     canFilm = !!target && S.torch;
 
-    if (target && !S.torch) setPrompt('Raise your phone — <kbd>RMB</kbd> or <kbd>F</kbd>');
-    else if (canFilm) setPrompt(`Hold <kbd>LMB</kbd> to film — ${target.name}`);
+    // Spell the buttons out. "RMB"/"LMB" is jargon that means nothing to most
+    // people, and this prompt is the only place the controls are taught.
+    if (S.deadHint > 0) setPrompt('Your phone is dead');
+    else if (target && !S.torch) setPrompt('Raise your phone — <kbd>right click</kbd> or <kbd>F</kbd>');
+    else if (canFilm) setPrompt(`Hold <kbd>left click</kbd> to film — ${target.name}`);
     else if (S.filmed.size >= CFG.totalShots) setPrompt('Get back to the boat');
+    else if (!S.torch) setPrompt('Raise your phone — <kbd>right click</kbd> or <kbd>F</kbd>');
     else setPrompt(null);
 
     const wantRec = input.film && canFilm;
@@ -372,6 +390,7 @@ function frame(rawDt) {
   S.fear += (targetFear - S.fear) * (1 - Math.exp(-dt * 2.6));
   S.glitch += ((watcher.state === 'hunt' ? prox * 0.95 : prox * 0.35) - S.glitch) * (1 - Math.exp(-dt * 4));
   S.hurt = Math.max(0, S.hurt - dt * 0.8);
+  S.deadHint = Math.max(0, S.deadHint - dt);
 
   uni.uWrong.value += (S.wrong - uni.uWrong.value) * (1 - Math.exp(-dt * 0.5));
   uni.uFogDen.value = 0.024 + uni.uWrong.value * 0.020;
@@ -415,6 +434,8 @@ function frame(rawDt) {
   if (playing) {
     HUD.vf.classList.toggle('on', S.recording);
     HUD.batt.classList.toggle('low', S.battery < 0.2);
+    HUD.phoneState.textContent = S.battery <= 0 ? 'dead' : (S.torch ? 'on' : 'off');
+    HUD.phoneState.className = S.battery <= 0 ? 'dead' : (S.torch ? 'on' : '');
     HUD.battf.style.width = (S.battery * 100).toFixed(1) + '%';
     HUD.stam.classList.toggle('on', S.stamina < 0.98);
     HUD.stamf.style.width = (S.stamina * 100).toFixed(0) + '%';

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { NOISE, ACES } from './shaders.js?v=3';
+import { NOISE, ACES } from './shaders.js?v=4';
 
 // ============================================================================
 //  POST — the camcorder

@@ -33,7 +33,7 @@ The phone is also your only real light, and the battery only goes one way.
 | Move | `W` `A` `S` `D` |
 | Look | Mouse (click to capture the pointer) |
 | Run | `Shift` — short bursts, you tire fast, and you can't run while filming |
-| Phone light | `Right click` or `F` |
+| Phone light | `Right click` or `F` — the HUD shows on / off / dead |
 | Film | Hold `Left click` at a marked place |
 | Mute | `M` |
 

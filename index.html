@@ -40,7 +40,10 @@
 
   /* battery + objective */
   #bl{ position:absolute; left:30px; bottom:26px; }
-  #lbl{ font-size:9px; letter-spacing:.34em; text-transform:uppercase; color:var(--dim); margin-bottom:7px; }
+  #phoneState{ color:var(--dim); }
+  #phoneState.on{ color:var(--sick); }
+  #phoneState.dead{ color:var(--red); }
+  .lbl{ font-size:9px; letter-spacing:.34em; text-transform:uppercase; color:var(--dim); margin-bottom:7px; }
   #batt{ width:150px; height:3px; background:rgba(255,255,255,.14); border-radius:2px; overflow:hidden; }
   #battf{ height:100%; width:100%; background:var(--sick); box-shadow:0 0 10px rgba(143,214,168,.8); transition:width .2s linear; }
   #batt.low #battf{ background:var(--red); box-shadow:0 0 10px var(--red); }
@@ -151,11 +154,11 @@
   </div>
 
   <div id="bl">
-    <div id="lbl">Phone</div>
+    <div class="lbl">Phone · <span id="phoneState">off</span></div>
     <div id="batt"><div id="battf"></div></div>
   </div>
   <div id="stam"><div id="stamf"></div></div>
-  <div id="br"><div id="shots">0<small>/5</small></div><div id="lbl" style="margin:6px 0 0">Filmed</div></div>
+  <div id="br"><div id="shots">0<small>/5</small></div><div class="lbl" style="margin:6px 0 0">Filmed</div></div>
 
   <div id="prompt"></div>
   <div id="subs"><span class="who"></span><span class="line"></span></div>
@@ -170,8 +173,8 @@
     <div class="k">Move</div>       <div class="d"><kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd></div>
     <div class="k">Look</div>       <div class="d">Mouse</div>
     <div class="k">Run</div>        <div class="d"><kbd>Shift</kbd> — you tire fast</div>
-    <div class="k">Phone</div>      <div class="d"><kbd>Right&nbsp;click</kbd> or <kbd>F</kbd> — your only light</div>
-    <div class="k">Film</div>       <div class="d">Hold <kbd>Left&nbsp;click</kbd> at a marked place</div>
+    <div class="k">Phone</div>      <div class="d"><kbd>Right click</kbd> or <kbd>F</kbd> — your only light</div>
+    <div class="k">Film</div>       <div class="d">Hold <kbd>Left click</kbd> at a marked place</div>
     <div class="k">Goal</div>       <div class="d">Film five locations. Get back to the boat.</div>
   </div>
   <div class="cta" id="startBtn">Go ashore</div>
@@ -207,6 +210,6 @@
 <!-- ?v= is a cache buster. GitHub Pages serves modules with a long
      max-age, so without it an edited src/ file keeps running its old
      version for anyone who has already visited. Bump it when you change src/. -->
-<script type="module" src="./src/main.js?v=3"></script>
+<script type="module" src="./src/main.js?v=4"></script>
 </body>
 </html>
